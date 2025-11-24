@@ -13,6 +13,7 @@ import dagger.multibindings.IntoMap
 import me.magnum.melonds.common.PermissionHandler
 import me.magnum.melonds.common.camera.BlackDSiCameraSource
 import me.magnum.melonds.common.camera.DSiCameraSource
+import me.magnum.melonds.common.ir.IRManager
 import me.magnum.melonds.common.romprocessors.RomFileProcessorFactory
 import me.magnum.melonds.common.runtime.ScreenshotFrameBufferProvider
 import me.magnum.melonds.common.uridelegates.UriHandler
@@ -109,6 +110,12 @@ object EmulatorRuntimeModule {
 
     @Provides
     @ActivityRetainedScoped
+    fun provideIRManager(@ApplicationContext context: Context): IRManager {
+        return IRManager(context)
+    }
+
+    @Provides
+    @ActivityRetainedScoped
     fun provideEmulatorManager(
         @ApplicationContext context: Context,
         settingsRepository: SettingsRepository,
@@ -117,6 +124,7 @@ object EmulatorRuntimeModule {
         romFileProcessorFactory: RomFileProcessorFactory,
         permissionHandler: PermissionHandler,
         cameraManagerMultiplexer: DSiCameraSourceMultiplexer,
+        irManager: IRManager,
     ): EmulatorManager {
         return AndroidEmulatorManager(
             context,
@@ -126,6 +134,7 @@ object EmulatorRuntimeModule {
             romFileProcessorFactory,
             permissionHandler,
             cameraManagerMultiplexer,
+            irManager,
         )
     }
 

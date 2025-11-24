@@ -37,6 +37,7 @@ rxJava = "2.2.21"
 splashscreen = "1.2.0"
 startup = "1.2.0"
 swipeRefreshLayout = "1.2.0"
+usbSerial = "3.8.1"
 window = "1.5.1"
 work = "2.11.1"
 xz = "1.11"
@@ -97,6 +98,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okHttp" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxJava" }
 rxjava-android = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxAndroid" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+usb-serial = { module = "com.github.mik3y:usb-serial-for-android", version.ref = "usbSerial" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 
 # GitHub

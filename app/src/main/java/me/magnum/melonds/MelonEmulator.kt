@@ -2,6 +2,7 @@ package me.magnum.melonds
 
 import android.net.Uri
 import me.magnum.melonds.common.camera.DSiCameraSource
+import me.magnum.melonds.common.ir.IRManager
 import me.magnum.melonds.domain.model.Cheat
 import me.magnum.melonds.domain.model.EmulatorConfiguration
 import me.magnum.melonds.domain.model.Input
@@ -48,6 +49,8 @@ object MelonEmulator {
 	external fun setupEmulator(
         emulatorConfiguration: EmulatorConfiguration,
         dsiCameraSource: DSiCameraSource?,
+        irManager: IRManager?,
+        retroAchievementsCallback: RetroAchievementsCallback,
         screenshotBuffer: ByteBuffer,
     )
 
@@ -132,4 +135,6 @@ object MelonEmulator {
     external fun setMicrophoneEnabled(enabled: Boolean)
 
     external fun updateEmulatorConfiguration(emulatorConfiguration: EmulatorConfiguration)
+
+    external fun setIRMode(mode: Int)
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- USB Serial Device Filter for IR Communication -->
+
+    <!-- Picowalker (Custom VID/PID) -->
+    <usb-device vendor-id="51966" product-id="16386" />  <!-- 0xCAFE, 0x4002 -->
+
+    <!-- Raspberry Pi Pico (RP2040) -->
+    <usb-device vendor-id="11914" product-id="5" />      <!-- 0x2E8A, 0x0005 - CDC -->
+    <usb-device vendor-id="11914" product-id="10" />     <!-- 0x2E8A, 0x000A - MicroPython -->
+
+    <!-- Raspberry Pi Pico 2 (RP2350) -->
+    <usb-device vendor-id="11914" product-id="15" />     <!-- 0x2E8A, 0x000F - CDC -->
+    <usb-device vendor-id="11914" product-id="3" />      <!-- 0x2E8A, 0x0003 - MicroPython -->
+
+    <!-- Generic CDC ACM devices (optional - allows any CDC device) -->
+    <!-- Uncomment the line below to allow any CDC ACM serial device -->
+    <!-- <usb-device class="2" subclass="2" protocol="0" /> -->
+</resources>
