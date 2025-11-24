@@ -35,6 +35,7 @@ import me.magnum.melonds.domain.model.appupdate.AppUpdate
 import me.magnum.melonds.domain.model.rom.Rom
 import me.magnum.melonds.ui.dsiwaremanager.DSiWareManagerActivity
 import me.magnum.melonds.ui.emulator.EmulatorActivity
+import me.magnum.melonds.ui.irmanager.IRManagerActivity
 import me.magnum.melonds.ui.settings.SettingsActivity
 import javax.inject.Inject
 
@@ -179,6 +180,11 @@ class RomListActivity : AppCompatActivity() {
             }
             R.id.action_dsiware_manager -> {
                 val intent = Intent(this, DSiWareManagerActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.action_ir_manager -> {
+                val intent = Intent(this, IRManagerActivity::class.java)
                 startActivity(intent)
                 return true
             }

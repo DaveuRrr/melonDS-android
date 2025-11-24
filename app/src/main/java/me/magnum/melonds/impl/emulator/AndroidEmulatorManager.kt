@@ -32,6 +32,7 @@ import me.magnum.melonds.domain.repositories.SettingsRepository
 import me.magnum.melonds.domain.services.EmulatorManager
 import me.magnum.melonds.extensions.extension
 import me.magnum.melonds.impl.camera.DSiCameraSourceMultiplexer
+import me.magnum.melonds.common.ir.IRManager
 import me.magnum.melonds.ui.emulator.exceptions.RomLoadException
 import me.magnum.melonds.ui.emulator.rewind.model.RewindSaveState
 import me.magnum.melonds.ui.emulator.rewind.model.RewindWindow
@@ -44,6 +45,7 @@ class AndroidEmulatorManager(
     private val romFileProcessorFactory: RomFileProcessorFactory,
     private val permissionHandler: PermissionHandler,
     private val cameraManager: DSiCameraSourceMultiplexer,
+    private val irManager: IRManager,
 ) : EmulatorManager {
 
     private val achievementsSharedFlow = MutableSharedFlow<RAEvent>(replay = 0, extraBufferCapacity = Int.MAX_VALUE)
@@ -178,6 +180,7 @@ class AndroidEmulatorManager(
 
     override fun cleanEmulator() {
         cameraManager.dispose()
+        irManager.cleanup()
     }
 
     override fun observeRetroAchievementEvents(): Flow<RAEvent> {
@@ -188,6 +191,7 @@ class AndroidEmulatorManager(
         MelonEmulator.setupEmulator(
             emulatorConfiguration = emulatorConfiguration,
             dsiCameraSource = cameraManager,
+            irManager = irManager,
             retroAchievementsCallback = object : RetroAchievementsCallback {
                 override fun onAchievementPrimed(achievementId: Long) {
                     achievementsSharedFlow.tryEmit(RAEvent.OnAchievementPrimed(achievementId))

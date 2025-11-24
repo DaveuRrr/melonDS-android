@@ -63,6 +63,27 @@
 
     <string name="dsiware_manager">DSiWare Manager</string>
     <string name="no_dsiware_titles_installed">You don\'t have any DSiWare title installed</string>
+
+    <string name="usb_manager">USB Manager</string>
+    <string name="usb_port_selection">USB Serial Devices</string>
+    <string name="usb_device_list_description">Select a USB serial port for IR communication.</string>
+    <string name="no_usb_devices_found">No USB devices found</string>
+    <string name="no_usb_devices_hint">Connect a USB serial device to your phone and tap the refresh button</string>
+    <string name="usb_devices_count">%1$d device(s) detected</string>
+    <string name="back">Back</string>
+
+    <string name="ir_manager">IR Manager</string>
+    <string name="ir_transport_selection">IR Transport Method</string>
+    <string name="ir_transport_description">Select the method for IR communication with your device.</string>
+    <string name="ir_none">No IR</string>
+    <string name="ir_none_description">Disable IR communication</string>
+    <string name="ir_usb_serial">USB IR (Serial)</string>
+    <string name="ir_usb_serial_description">Use USB serial device for IR communication</string>
+    <string name="ir_tcp">TCP IR</string>
+    <string name="ir_tcp_description">Use TCP/IP network connection for IR communication</string>
+    <string name="ir_direct_storage">Direct Storage</string>
+    <string name="ir_direct_storage_description">Use direct storage as IR write to eeprom</string>
+
     <string name="dsiware_manager_no_dsi_setup">You haven\'t setup the DSi system</string>
     <string name="dsiware_manager_invalid_dsi_setup">Your DSi system setup is invalid</string>
     <string name="import_dsiware_title">Import DSiWare title</string>

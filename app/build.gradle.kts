@@ -164,6 +164,7 @@ dependencies {
     implementation(libs.rxjava)
     implementation(libs.rxjava.android)
     implementation(libs.commons.compress)
+    implementation(libs.usb.serial)
     implementation(libs.xz)
 
     gitHubImplementation(libs.retrofit)

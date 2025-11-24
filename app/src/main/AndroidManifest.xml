@@ -3,6 +3,7 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:name="android.hardware.camera.any" />
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -70,6 +71,20 @@
                 android:name=".ui.dsiwaremanager.DSiWareManagerActivity"
                 android:label="@string/dsiware_manager"
                 android:parentActivityName=".ui.romlist.RomListActivity"
+                android:theme="@style/AppTheme.NoToolbar"
+                android:exported="false">
+        </activity>
+        <activity
+                android:name=".ui.irmanager.IRManagerActivity"
+                android:label="@string/ir_manager"
+                android:parentActivityName=".ui.romlist.RomListActivity"
+                android:theme="@style/AppTheme.NoToolbar"
+                android:exported="false">
+        </activity>
+        <activity
+                android:name=".ui.irmanager.UsbManagerActivity"
+                android:label="@string/usb_manager"
+                android:parentActivityName=".ui.irmanager.IRManagerActivity"
                 android:theme="@style/AppTheme.NoToolbar"
                 android:exported="false">
         </activity>

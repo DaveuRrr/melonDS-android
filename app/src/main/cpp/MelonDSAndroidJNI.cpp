@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <MelonDS.h>
+#include <IR.h>
 #include <RomGbaSlotConfig.h>
 #include <android/asset_manager_jni.h>
 #include "UriFileHandler.h"
@@ -17,6 +18,7 @@
 #include "MelonDSAndroidInterface.h"
 #include "MelonDSAndroidConfiguration.h"
 #include "MelonDSAndroidCameraHandler.h"
+#include "MelonDSAndroidIRHandler.h"
 #include "RAAchievementMapper.h"
 
 #include "Platform.h"
@@ -46,27 +48,31 @@ bool limitFps = true;
 bool isFastForwardEnabled = false;
 
 jobject globalCameraManager;
+jobject globalIRManager;
 jobject androidRaCallback;
 MelonDSAndroidCameraHandler* androidCameraHandler;
+MelonDSAndroidIRHandler* androidIRHandler;
 AndroidRACallback* raCallback;
 
 extern "C"
 {
 JNIEXPORT void JNICALL
-Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject retroAchievementsCallback, jobject screenshotBuffer, jlong glContext)
+Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject irManager, jobject retroAchievementsCallback, jobject screenshotBuffer, jlong glContext)
 {
     MelonDSAndroid::EmulatorConfiguration finalEmulatorConfiguration = MelonDSAndroidConfiguration::buildEmulatorConfiguration(env, emulatorConfiguration);
     fastForwardSpeedMultiplier = finalEmulatorConfiguration.fastForwardSpeedMultiplier;
 
     globalCameraManager = env->NewGlobalRef(cameraManager);
+    globalIRManager = env->NewGlobalRef(irManager);
     androidRaCallback = env->NewGlobalRef(retroAchievementsCallback);
 
     androidCameraHandler = new MelonDSAndroidCameraHandler(jniEnvHandler, globalCameraManager);
+    androidIRHandler = new MelonDSAndroidIRHandler(jniEnvHandler, globalIRManager);
     raCallback = new AndroidRACallback(jniEnvHandler, androidRaCallback);
     u32* screenshotBufferPointer = (u32*) env->GetDirectBufferAddress(screenshotBuffer);
 
     MelonDSAndroid::setConfiguration(std::move(finalEmulatorConfiguration));
-    MelonDSAndroid::setup(androidCameraHandler, raCallback, screenshotBufferPointer, glContext, 0);
+    MelonDSAndroid::setup(androidCameraHandler, androidIRHandler, raCallback, screenshotBufferPointer, glContext, 0);
     paused = false;
 }
 
@@ -496,6 +502,12 @@ Java_me_magnum_melonds_MelonEmulator_updateEmulatorConfiguration(JNIEnv* env, jo
         targetFps = 60 * fastForwardSpeedMultiplier;
     }
 }
+JNIEXPORT void JNICALL
+Java_me_magnum_melonds_MelonEmulator_setIRMode(JNIEnv* env, jobject thiz, jint mode)
+{
+    melonDS::Platform::setIRMode(mode);
+}
+
 }
 
 MelonDSAndroid::RomGbaSlotConfig* buildGbaSlotConfig(GbaSlotType slotType, const char* romPath, const char* savePath)
