@@ -51,7 +51,6 @@ object MelonEmulator {
         irManager: IRManager?,
         retroAchievementsCallback: RetroAchievementsCallback,
         screenshotBuffer: ByteBuffer,
-        glContext: Long,
     )
 
     external fun setupCheats(cheats: Array<Cheat>)

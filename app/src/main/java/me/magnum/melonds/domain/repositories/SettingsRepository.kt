@@ -3,8 +3,10 @@ package me.magnum.melonds.domain.repositories
 import android.net.Uri
 import io.reactivex.Observable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import me.magnum.melonds.domain.model.*
 import me.magnum.melonds.domain.model.camera.DSiCameraSourceType
+import me.magnum.melonds.domain.model.input.SoftInputBehaviour
 import me.magnum.melonds.domain.model.rom.Rom
 import me.magnum.melonds.ui.Theme
 import java.util.*
@@ -36,8 +38,10 @@ interface SettingsRepository {
     fun isThreadedRenderingEnabled(): Flow<Boolean>
     fun getFpsCounterPosition(): FpsCounterPosition
     fun getExternalDisplayScreen(): DsExternalScreen
-    fun isExternalDisplayKeepAspectRatioEnabled(): Boolean
-    fun isExternalDisplayRotateLeftEnabled(): Boolean
+    fun observeExternalDisplayScreen(): Flow<DsExternalScreen>
+    fun isExternalDisplayKeepAspectRationEnabled(): Boolean
+    fun observeExternalDisplayKeepAspectRationEnabled(): Flow<Boolean>
+    fun isExternalDisplayRotateLeftEnabled(): Flow<Boolean>
     fun getDSiCameraSource(): DSiCameraSourceType
     fun getDSiCameraStaticImage(): Uri?
 
@@ -54,8 +58,9 @@ interface SettingsRepository {
     fun getSaveStateDirectory(rom: Rom): Uri?
 
     fun getControllerConfiguration(): ControllerConfiguration
+    fun observeControllerConfiguration(): StateFlow<ControllerConfiguration>
     fun getSelectedLayoutId(): UUID
-    fun showSoftInput(): Flow<Boolean>
+    fun getSoftInputBehaviour(): Flow<SoftInputBehaviour>
     fun getExternalLayoutId(): UUID
     fun isTouchHapticFeedbackEnabled(): Flow<Boolean>
     fun getTouchHapticFeedbackStrength(): Int
@@ -68,7 +73,7 @@ interface SettingsRepository {
 
     fun observeTheme(): Observable<Theme>
     fun observeRomIconFiltering(): Flow<RomIconFiltering>
-    fun observeRomSearchDirectories(): Observable<Array<Uri>>
+    fun observeRomSearchDirectories(): Flow<Array<Uri>>
     fun observeSelectedLayoutId(): Observable<UUID>
     fun observeExternalLayoutId(): Observable<UUID>
     fun observeDSiCameraSource(): Flow<DSiCameraSourceType>

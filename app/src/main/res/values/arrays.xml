@@ -64,7 +64,6 @@
     <string-array name="external_display_screen_values">
         <item>top</item>
         <item>bottom</item>
-        <item>custom</item>
     </string-array>
 
     <string-array name="audio_interpolation_values">
@@ -90,6 +89,13 @@
         <item>none</item>
         <item>blow</item>
         <item>device</item>
+    </string-array>
+
+    <string-array name="soft_input_behaviour">
+        <item>always_visible</item>
+        <item>hide_system_buttons_when_controller_connected</item>
+        <item>hide_mapped_buttons_when_controller_connected</item>
+        <item>always_invisible</item>
     </string-array>
 
     <string-array name="theme_values">

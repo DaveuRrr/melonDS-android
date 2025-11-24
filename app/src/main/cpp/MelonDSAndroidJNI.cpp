@@ -57,7 +57,7 @@ AndroidRACallback* raCallback;
 extern "C"
 {
 JNIEXPORT void JNICALL
-Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject irManager, jobject retroAchievementsCallback, jobject screenshotBuffer, jlong glContext)
+Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject irManager, jobject retroAchievementsCallback, jobject screenshotBuffer)
 {
     MelonDSAndroid::EmulatorConfiguration finalEmulatorConfiguration = MelonDSAndroidConfiguration::buildEmulatorConfiguration(env, emulatorConfiguration);
     fastForwardSpeedMultiplier = finalEmulatorConfiguration.fastForwardSpeedMultiplier;
@@ -72,7 +72,7 @@ Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jo
     u32* screenshotBufferPointer = (u32*) env->GetDirectBufferAddress(screenshotBuffer);
 
     MelonDSAndroid::setConfiguration(std::move(finalEmulatorConfiguration));
-    MelonDSAndroid::setup(androidCameraHandler, androidIRHandler, raCallback, screenshotBufferPointer, glContext, 0);
+    MelonDSAndroid::setup(androidCameraHandler, androidIRHandler, raCallback, screenshotBufferPointer, 0);
     paused = false;
 }
 
@@ -244,6 +244,13 @@ Java_me_magnum_melonds_MelonEmulator_presentFrame(JNIEnv* env, jobject thiz, job
 
     Frame* presentationFrame = MelonDSAndroid::getPresentationFrame();
     EGLDisplay currentDisplay = eglGetCurrentDisplay();
+
+    if (presentationFrame != nullptr && presentationFrame->presentFence)
+    {
+        eglDestroySyncKHR(currentDisplay, presentationFrame->presentFence);
+        presentationFrame->presentFence = 0;
+    }
+
     if (presentationFrame != nullptr)
     {
         eglWaitSyncKHR(currentDisplay, presentationFrame->renderFence, 0);
