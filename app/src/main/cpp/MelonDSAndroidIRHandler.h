@@ -17,6 +17,12 @@ public:
     int writeSerial(const char* data, int length) override;
     int readSerial(char* buffer, int maxLength) override;
     bool isSerialOpen() override;
+    bool openTCP() override;
+    void closeTCP() override;
+    int writeTCP(const char* data, int length) override;
+    int readTCP(char* buffer, int maxLength) override;
+    bool isTCPOpen() override;
+
     bool hasDataAvailable() override;
     virtual ~MelonDSAndroidIRHandler();
 };
