@@ -136,11 +136,12 @@ fun IRManagerScreen(
                     title = stringResource(R.string.ir_tcp),
                     description = stringResource(R.string.ir_tcp_description),
                     isSelected = selectedTransport == IRTransportType.TCP,
-                    isEnabled = false, // TODO: Disabled until implemented
+                    isEnabled = true,
                     hasSubmenu = true,
                     onClick = { saveSelection(IRTransportType.TCP) },
                     onSubmenuClick = {
-                        // TODO: Open TCP configuration
+                        val intent = Intent(context, TCPManagerActivity::class.java)
+                        context.startActivity(intent)
                     }
                 )
                 Divider()

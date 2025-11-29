@@ -84,6 +84,25 @@
     <string name="ir_direct_storage">Direct Storage</string>
     <string name="ir_direct_storage_description">Use direct storage as IR write to eeprom</string>
 
+    <string name="tcp_manager">TCP Manager</string>
+    <string name="tcp_settings_title">TCP/IP Settings</string>
+    <string name="tcp_settings_description">Configure TCP/IP connection for IR communication over network.</string>
+    <string name="tcp_connection_mode">Connection Mode</string>
+    <string name="tcp_server_mode">Server Mode</string>
+    <string name="tcp_server_mode_description">Wait for incoming connections from a client</string>
+    <string name="tcp_client_mode">Client Mode</string>
+    <string name="tcp_client_mode_description">Connect to a remote server</string>
+    <string name="tcp_server_settings">Server Settings</string>
+    <string name="tcp_server_info">Your device will listen for incoming connections on the specified port.</string>
+    <string name="tcp_server_port">Server Port</string>
+    <string name="tcp_client_settings">Client Settings</string>
+    <string name="tcp_client_info">Your device will connect to the specified host and port.</string>
+    <string name="tcp_client_host">Host IP Address</string>
+    <string name="tcp_client_port">Port</string>
+    <string name="tcp_port_error">Port must be between 1 and 65535</string>
+    <string name="tcp_usage_tips_title">Usage Tips</string>
+    <string name="tcp_usage_tips">• Server Mode: Use this when another device or application will connect to your Android device\n• Client Mode: Use this when connecting to a remote IR server</string>
+
     <string name="dsiware_manager_no_dsi_setup">You haven\'t setup the DSi system</string>
     <string name="dsiware_manager_invalid_dsi_setup">Your DSi system setup is invalid</string>
     <string name="import_dsiware_title">Import DSiWare title</string>

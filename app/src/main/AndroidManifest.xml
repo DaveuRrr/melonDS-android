@@ -89,6 +89,13 @@
                 android:exported="false">
         </activity>
         <activity
+                android:name=".ui.irmanager.TCPManagerActivity"
+                android:label="@string/tcp_manager"
+                android:parentActivityName=".ui.irmanager.IRManagerActivity"
+                android:theme="@style/AppTheme.NoToolbar"
+                android:exported="false">
+        </activity>
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.romlist.RomListActivity"

@@ -74,6 +74,7 @@ class IRManager(private val context: Context) {
 
     private var currentTransport: IRTransport = NoOpenIRTransport()
     private val usbSerialManager = UsbSerialManager(context)
+    private val tcpManager = TCPManager(context)
     private var statusListener: TransportStatusListener? = null
 
     init {
@@ -123,8 +124,8 @@ class IRManager(private val context: Context) {
                 }
             }
             IRTransportType.TCP -> {
-                Log.d(TAG, "TCP transport not yet implemented, using NoOpen")
-                NoOpenIRTransport()  // TODO: implement
+                Log.d(TAG, "TCP transport selected")
+                tcpManager
             }
             IRTransportType.DIRECT_STORAGE -> {
                 Log.d(TAG, "Direct Storage transport not yet implemented, using NoOpen")
@@ -176,9 +177,10 @@ class IRManager(private val context: Context) {
      * Call this when stopping emulation
      */
     fun cleanup() {
-        closeSerial()
+        currentTransport.close()
         currentTransport.dispose()
         usbSerialManager.dispose()
+        tcpManager.dispose()
         Log.d(TAG, "IRManager cleaned up")
     }
 
@@ -226,6 +228,51 @@ class IRManager(private val context: Context) {
      * Called from native code via JNI
      */
     fun isSerialOpen(): Boolean {
+        return currentTransport.isOpen()
+    }
+
+    /**
+     * Open the tcp port
+     * Called from native code via JNI
+     */
+    fun openTCP(): Boolean {
+        updateTransport()
+        Log.d(TAG, "openTCP() called from native (transport: ${getCurrentTransportType()})")
+        return currentTransport.open()
+    }
+
+    /**
+     * Close the tcp port
+     * Called from native code via JNI
+     */
+    fun closeTCP() {
+        Log.d(TAG, "closeTCP() called from native")
+        currentTransport.close()
+    }
+
+    /**
+     * Write data to tcp port
+     * Called from native code via JNI
+     * Returns the number of bytes written
+     */
+    fun writeTCP(data: ByteArray, length: Int): Int {
+        return currentTransport.write(data, length)
+    }
+
+    /**
+     * Read data from tcp port
+     * Called from native code via JNI
+     * Returns the number of bytes read
+     */
+    fun readTCP(buffer: ByteArray, maxLength: Int): Int {
+        return currentTransport.read(buffer, maxLength)
+    }
+    
+    /**
+     * Check if tcp port is open
+     * Called from native code via JNI
+     */
+    fun isTCPOpen(): Boolean {
         return currentTransport.isOpen()
     }
 
