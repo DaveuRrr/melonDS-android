@@ -219,9 +219,7 @@ class TCPManager(private val context: Context) : IRTransport {
                             Log.d(TAG, "Connection closed by remote")
                             break
                         }
-                    } else {
-                        Thread.sleep(10) // No data available, sleep briefly
-                    }
+                    } // else { Thread.sleep(10) } // No data available, sleep briefly (Removed to reduce the unintended lag...)
                 } catch (e: SocketTimeoutException) {
                     continue // Timeout is expected, continue loop
                 } catch (e: InterruptedException) {
