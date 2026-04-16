@@ -15,6 +15,7 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import me.magnum.melonds.common.ir.IRTransport
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -82,32 +83,64 @@ class UsbSerialManager(private val context: Context) : IRTransport {
     private val shouldStopReader = AtomicBoolean(false)
     private var permissionGrantListener: (() -> Unit)? = null
 
+    // Reconnect: remember the last successfully connected device's VID/PID
+    private var lastDeviceVendorId = -1
+    private var lastDeviceProductId = -1
+
     fun setPermissionGrantListener(listener: () -> Unit) {
         permissionGrantListener = listener
     }
 
     private val usbPermissionReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (ACTION_USB_PERMISSION == intent.action) {
-                synchronized(this) {
-                    val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-                    }
+            val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+            }
 
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.let {
-                            Log.d(TAG, "USB permission granted for device: ${it.deviceName}")
-                            usbDevice = it
-                            permissionGrantListener?.invoke()
-                        } ?: run {
-                            Log.e(TAG, "Permission granted but device is null!")
+            when (intent.action) {
+                ACTION_USB_PERMISSION -> {
+                    synchronized(this) {
+                        if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                            device?.let {
+                                Log.d(TAG, "USB permission granted for device: ${it.deviceName}")
+                                usbDevice = it
+                                permissionGrantListener?.invoke()
+                            } ?: run {
+                                Log.e(TAG, "Permission granted but device is null!")
+                            }
+                        } else {
+                            Log.w(TAG, "USB permission denied for device: ${device?.deviceName}")
+                            usbDevice = null
                         }
-                    } else {
-                        Log.w(TAG, "USB permission denied for device: ${device?.deviceName}")
-                        usbDevice = null
+                    }
+                }
+                UsbManager.ACTION_USB_DEVICE_DETACHED -> {
+                    device?.let { detached ->
+                        if (detached.vendorId == lastDeviceVendorId &&
+                            detached.productId == lastDeviceProductId) {
+                            Log.d(TAG, "Known IR device detached: ${detached.deviceName}")
+                            close()
+                            usbDevice = null
+                        }
+                    }
+                }
+                UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
+                    device?.let { attached ->
+                        if (attached.vendorId == lastDeviceVendorId &&
+                            attached.productId == lastDeviceProductId) {
+                            Log.d(TAG, "Known IR device reattached: ${attached.deviceName} — queuing reconnect")
+                            usbDevice = attached
+                            // If we already have permission, open immediately;
+                            // otherwise request it (permissionGrantListener will call updateTransport → open)
+                            if (usbManager.hasPermission(attached)) {
+                                open()
+                            } else {
+                                findAndRequestDevice()
+                            }
+                        }
                     }
                 }
             }
@@ -115,7 +148,10 @@ class UsbSerialManager(private val context: Context) : IRTransport {
     }
 
     init {
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
+        val filter = IntentFilter(ACTION_USB_PERMISSION).apply {
+            addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(usbPermissionReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
@@ -169,17 +205,16 @@ class UsbSerialManager(private val context: Context) : IRTransport {
             val selectedDeviceKey = prefs.getString("selected_usb_device_key", null)
 
             if (selectedDeviceKey != null) {
-                // Device key format is: "${device.deviceName}:${portIndex}"
-                val deviceName = device.deviceName
-                if (selectedDeviceKey.startsWith("$deviceName:")) {
-                    // Extract the port index from the device key
+                // Device key format is: "${vendorId}:${productId}:${portIndex}"
+                val vidPidPrefix = "${device.vendorId}:${device.productId}:"
+                if (selectedDeviceKey.startsWith(vidPidPrefix)) {
                     val portIndex = selectedDeviceKey.substringAfterLast(":").toIntOrNull()
                     if (portIndex != null) {
-                        Log.d(TAG, "Found user-selected port $portIndex for device $deviceName")
+                        Log.d(TAG, "Found user-selected port $portIndex for VID:PID ${device.vendorId}:${device.productId}")
                         return portIndex
                     }
                 } else {
-                    Log.d(TAG, "Selected device key '$selectedDeviceKey' doesn't match current device '$deviceName'")
+                    Log.d(TAG, "Selected device key '$selectedDeviceKey' doesn't match current device VID:PID ${device.vendorId}:${device.productId}")
                 }
             }
             null // No matching preference found
@@ -402,6 +437,8 @@ class UsbSerialManager(private val context: Context) : IRTransport {
 
             usbSerialPort = port
             isOpen.set(true)
+            lastDeviceVendorId = device.vendorId
+            lastDeviceProductId = device.productId
 
             startReaderThread()
 
@@ -444,6 +481,12 @@ class UsbSerialManager(private val context: Context) : IRTransport {
                             Log.d(TAG, "Reader thread: read $bytesRead bytes")
                         }
                     }
+                } catch (e: IOException) {
+                    if (!shouldStopReader.get()) {
+                        Log.w(TAG, "Serial read IOException — device likely disconnected", e)
+                        isOpen.set(false)
+                    }
+                    break  // Exit loop; detach broadcast will clean up the rest
                 } catch (e: Exception) {
                     if (!shouldStopReader.get() && VERBOSE_LOGGING) {
                         Log.e(TAG, "Reader thread error", e)
@@ -529,6 +572,26 @@ class UsbSerialManager(private val context: Context) : IRTransport {
             Log.d(TAG, "Serial read $bytesRead bytes: ${buffer.take(bytesRead).joinToString(" ") { "%02X".format(it) }}")
         }
 
+        return bytesRead
+    }
+
+    /**
+     * Blocking read: waits up to [timeoutMs] for the first byte using the OS scheduler,
+     * then drains any further bytes that are already in the queue non-blocking.
+     */
+    override fun readBlocking(buffer: ByteArray, maxLength: Int, timeoutMs: Long): Int {
+        if (!isOpen.get()) return 0
+        var bytesRead = 0
+        try {
+            val firstByte = readBuffer.poll(timeoutMs, TimeUnit.MILLISECONDS) ?: return 0
+            buffer[bytesRead++] = firstByte
+            while (bytesRead < maxLength) {
+                buffer[bytesRead] = readBuffer.poll() ?: break
+                bytesRead++
+            }
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
         return bytesRead
     }
 

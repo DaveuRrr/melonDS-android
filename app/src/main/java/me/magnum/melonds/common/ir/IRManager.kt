@@ -1,6 +1,7 @@
 package me.magnum.melonds.common.ir
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import me.magnum.melonds.MelonEmulator
 
@@ -77,13 +78,24 @@ class IRManager(private val context: Context) {
     private val tcpManager = TCPManager(context)
     private var statusListener: TransportStatusListener? = null
 
+    // Automatically re-apply transport when user changes the setting in IRManagerActivity
+    private val prefChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == "ir_transport_type") {
+            Log.d(TAG, "IR transport preference changed, updating transport")
+            updateTransport()
+        }
+    }
+
     init {
         // Set up listener for when USB permission is granted
         usbSerialManager.setPermissionGrantListener {
             updateTransport()
         }
 
-        updateTransport() // TODO: Might need to optimize?
+        val prefs = context.getSharedPreferences("ir_settings", Context.MODE_PRIVATE)
+        prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
+
+        updateTransport()
         Log.d(TAG, "IRManager created with transport: ${getCurrentTransportType()}")
     }
 
@@ -177,6 +189,8 @@ class IRManager(private val context: Context) {
      * Call this when stopping emulation
      */
     fun cleanup() {
+        context.getSharedPreferences("ir_settings", Context.MODE_PRIVATE)
+            .unregisterOnSharedPreferenceChangeListener(prefChangeListener)
         currentTransport.close()
         currentTransport.dispose()
         usbSerialManager.dispose()
@@ -221,6 +235,14 @@ class IRManager(private val context: Context) {
      */
     fun readSerial(buffer: ByteArray, maxLength: Int): Int {
         return currentTransport.read(buffer, maxLength)
+    }
+
+    /**
+     * Blocking read — waits up to [timeoutMs] ms for the first byte, then drains the rest.
+     * Called from native code via JNI to replace the C++ busy-spin timeout loop.
+     */
+    fun readSerialBlocking(buffer: ByteArray, maxLength: Int, timeoutMs: Long): Int {
+        return currentTransport.readBlocking(buffer, maxLength, timeoutMs)
     }
 
     /**

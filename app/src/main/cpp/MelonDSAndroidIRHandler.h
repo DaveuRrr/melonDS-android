@@ -16,6 +16,7 @@ public:
     void closeSerial() override;
     int writeSerial(const char* data, int length) override;
     int readSerial(char* buffer, int maxLength) override;
+    int readSerialBlocking(char* buffer, int maxLength, long long timeoutMs) override;
     bool isSerialOpen() override;
     bool openTCP() override;
     void closeTCP() override;

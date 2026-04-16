@@ -33,6 +33,13 @@ interface IRTransport {
     fun read(buffer: ByteArray, maxLength: Int): Int
 
     /**
+     * Read data, blocking up to [timeoutMs] for the first byte.
+     * Default implementation is non-blocking (falls back to read()).
+     * Transports with async queues (e.g. USB serial) should override this.
+     */
+    fun readBlocking(buffer: ByteArray, maxLength: Int, timeoutMs: Long): Int = read(buffer, maxLength)
+
+    /**
      * Check if the transport is currently open
      * @return true if open
      */

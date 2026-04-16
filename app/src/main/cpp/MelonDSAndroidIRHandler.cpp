@@ -151,6 +151,41 @@ int MelonDSAndroidIRHandler::readSerial(char* buffer, int maxLength)
     return bytesRead;
 }
 
+int MelonDSAndroidIRHandler::readSerialBlocking(char* buffer, int maxLength, long long timeoutMs)
+{
+    if (!jniEnvHandler || !irManager) return 0;
+
+    JNIEnv* env = jniEnvHandler->getCurrentThreadEnv();
+    if (!env) return 0;
+
+    jbyteArray javaBuffer = env->NewByteArray(maxLength);
+    if (javaBuffer == nullptr) return 0;
+
+    jclass irManagerClass = env->GetObjectClass(irManager);
+    if (!irManagerClass) {
+        env->DeleteLocalRef(javaBuffer);
+        return 0;
+    }
+
+    jmethodID readMethod = env->GetMethodID(irManagerClass, "readSerialBlocking", "([BIJ)I");
+    if (!readMethod) {
+        env->DeleteLocalRef(irManagerClass);
+        env->DeleteLocalRef(javaBuffer);
+        return 0;
+    }
+
+    jint bytesRead = env->CallIntMethod(irManager, readMethod, javaBuffer, maxLength, (jlong) timeoutMs);
+
+    if (bytesRead > 0) {
+        env->GetByteArrayRegion(javaBuffer, 0, bytesRead, (jbyte*) buffer);
+    }
+
+    env->DeleteLocalRef(irManagerClass);
+    env->DeleteLocalRef(javaBuffer);
+
+    return bytesRead;
+}
+
 bool MelonDSAndroidIRHandler::isSerialOpen()
 {
     if (!jniEnvHandler || !irManager) {

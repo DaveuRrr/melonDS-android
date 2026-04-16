@@ -271,7 +271,7 @@ fun detectUsbDevices(context: Context): List<UsbPortItem> {
 
         if (driver != null) {
             for (portIndex in 0 until driver.ports.size) {
-                val deviceKey = "${device.deviceName}:$portIndex"
+                val deviceKey = "${device.vendorId}:${device.productId}:$portIndex"
                 portItems.add(
                     UsbPortItem(
                         device = device,
@@ -282,7 +282,7 @@ fun detectUsbDevices(context: Context): List<UsbPortItem> {
                 )
             }
         } else {
-            val deviceKey = "${device.deviceName}:0"
+            val deviceKey = "${device.vendorId}:${device.productId}:0"
             portItems.add(
                 UsbPortItem(
                     device = device,
