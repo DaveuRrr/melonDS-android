@@ -50,7 +50,6 @@ object MelonEmulator {
         emulatorConfiguration: EmulatorConfiguration,
         dsiCameraSource: DSiCameraSource?,
         irManager: IRManager?,
-        retroAchievementsCallback: RetroAchievementsCallback,
         screenshotBuffer: ByteBuffer,
     )
 

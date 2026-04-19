@@ -53,10 +53,8 @@ bool isFastForwardEnabled = false;
 
 jobject globalCameraManager;
 jobject globalIRManager;
-jobject androidRaCallback;
 MelonDSAndroidCameraHandler* androidCameraHandler;
 MelonDSAndroidIRHandler* androidIRHandler;
-AndroidRACallback* raCallback;
 
 static const int64_t FRAME_DURATION_60FPS_NS = 16666666;
 static const int64_t FRAME_DURATION_1000FPS_NS = 1000000; // 1ms. Used as frame time when fast-forward is enabled
@@ -65,23 +63,21 @@ ThreadSafePerformanceHintSession* performanceHintSession = nullptr;
 extern "C"
 {
 JNIEXPORT void JNICALL
-Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject irManager, jobject retroAchievementsCallback, jobject screenshotBuffer, jlong glContext)
+Java_me_magnum_melonds_MelonEmulator_setupEmulator(JNIEnv* env, jobject thiz, jobject emulatorConfiguration, jobject cameraManager, jobject irManager, jobject screenshotBuffer)
 {
     MelonDSAndroid::EmulatorConfiguration finalEmulatorConfiguration = MelonDSAndroidConfiguration::buildEmulatorConfiguration(env, emulatorConfiguration);
     fastForwardSpeedMultiplier = finalEmulatorConfiguration.fastForwardSpeedMultiplier;
 
     globalCameraManager = env->NewGlobalRef(cameraManager);
     globalIRManager = env->NewGlobalRef(irManager);
-    androidRaCallback = env->NewGlobalRef(retroAchievementsCallback);
 
     auto androidEventMessenger = std::make_shared<AndroidMelonEventMessenger>();
     androidCameraHandler = new MelonDSAndroidCameraHandler(jniEnvHandler, globalCameraManager);
     androidIRHandler = new MelonDSAndroidIRHandler(jniEnvHandler, globalIRManager);
-    raCallback = new AndroidRACallback(jniEnvHandler, androidRaCallback);
     u32* screenshotBufferPointer = (u32*) env->GetDirectBufferAddress(screenshotBuffer);
 
     MelonDSAndroid::setConfiguration(std::move(finalEmulatorConfiguration));
-    MelonDSAndroid::setup(androidCameraHandler, androidIRHandler, raCallback, screenshotBufferPointer, glContext, 0);
+    MelonDSAndroid::setup(androidCameraHandler, androidIRHandler, std::move(androidEventMessenger), screenshotBufferPointer, 0);
     paused = false;
 }
 

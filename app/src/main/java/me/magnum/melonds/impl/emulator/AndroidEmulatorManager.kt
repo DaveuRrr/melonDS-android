@@ -233,19 +233,6 @@ class AndroidEmulatorManager(
             emulatorConfiguration = emulatorConfiguration,
             dsiCameraSource = cameraManager,
             irManager = irManager,
-            retroAchievementsCallback = object : RetroAchievementsCallback {
-                override fun onAchievementPrimed(achievementId: Long) {
-                    achievementsSharedFlow.tryEmit(RAEvent.OnAchievementPrimed(achievementId))
-                }
-
-                override fun onAchievementTriggered(achievementId: Long) {
-                    achievementsSharedFlow.tryEmit(RAEvent.OnAchievementTriggered(achievementId))
-                }
-
-                override fun onAchievementUnprimed(achievementId: Long) {
-                    achievementsSharedFlow.tryEmit(RAEvent.OnAchievementUnPrimed(achievementId))
-                }
-            },
             screenshotBuffer = screenshotFrameBufferProvider.frameBuffer(),
         )
     }

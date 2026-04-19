@@ -81,21 +81,21 @@
                 android:name=".ui.irmanager.IRManagerActivity"
                 android:label="@string/ir_manager"
                 android:parentActivityName=".ui.romlist.RomListActivity"
-                android:theme="@style/AppTheme.NoToolbar"
+                android:theme="@style/AppTheme"
                 android:exported="false">
         </activity>
         <activity
                 android:name=".ui.irmanager.UsbManagerActivity"
                 android:label="@string/usb_manager"
                 android:parentActivityName=".ui.irmanager.IRManagerActivity"
-                android:theme="@style/AppTheme.NoToolbar"
+                android:theme="@style/AppTheme"
                 android:exported="false">
         </activity>
         <activity
                 android:name=".ui.irmanager.TCPManagerActivity"
                 android:label="@string/tcp_manager"
                 android:parentActivityName=".ui.irmanager.IRManagerActivity"
-                android:theme="@style/AppTheme.NoToolbar"
+                android:theme="@style/AppTheme"
                 android:exported="false">
         </activity>
         <activity
