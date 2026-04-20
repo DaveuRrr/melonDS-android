@@ -146,18 +146,6 @@ fun IRManagerScreen(
                 )
                 Divider()
             }
-            item {
-                IRTransportItem(
-                    title = stringResource(R.string.ir_direct_storage),
-                    description = stringResource(R.string.ir_direct_storage_description),
-                    isSelected = selectedTransport == IRTransportType.DIRECT_STORAGE,
-                    isEnabled = false, // TODO: Disabled until implemented
-                    hasSubmenu = false,
-                    onClick = { saveSelection(IRTransportType.DIRECT_STORAGE) },
-                    onSubmenuClick = { }
-                )
-                Divider()
-            }
         }
     }
 }

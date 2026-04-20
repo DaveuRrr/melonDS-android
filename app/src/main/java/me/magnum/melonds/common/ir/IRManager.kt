@@ -8,8 +8,7 @@ import me.magnum.melonds.MelonEmulator
 enum class IRTransportType {
     NONE,
     USB_SERIAL,
-    TCP,
-    DIRECT_STORAGE
+    TCP
 }
 
 /**
@@ -138,10 +137,6 @@ class IRManager(private val context: Context) {
             IRTransportType.TCP -> {
                 Log.d(TAG, "TCP transport selected")
                 tcpManager
-            }
-            IRTransportType.DIRECT_STORAGE -> {
-                Log.d(TAG, "Direct Storage transport not yet implemented, using NoOpen")
-                NoOpenIRTransport()  // TODO: implement
             }
         }
 

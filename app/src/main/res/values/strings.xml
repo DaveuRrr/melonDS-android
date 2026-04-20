@@ -82,8 +82,6 @@
     <string name="ir_usb_serial_description">Use USB serial device for IR communication</string>
     <string name="ir_tcp">TCP IR</string>
     <string name="ir_tcp_description">Use TCP/IP network connection for IR communication</string>
-    <string name="ir_direct_storage">Direct Storage</string>
-    <string name="ir_direct_storage_description">Use direct storage as IR write to eeprom</string>
 
     <string name="tcp_manager">TCP Manager</string>
     <string name="tcp_settings_title">TCP/IP Settings</string>
